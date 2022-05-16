@@ -3,7 +3,7 @@
 load ../../burak_fiete_gc_model/data/HaftingTraj_centimeters_seconds.mat;
 
 ts = 0.02; % timestep
-runtime = 550*(1/ts);
+runtime = size(pos,2);%29416; % run time is number of timesteps in source file.
 x0 = pos(1,1);
 y0 = pos(2,1);
 x1 = x0;
