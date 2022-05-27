@@ -2,6 +2,8 @@
 
 load ../../burak_fiete_gc_model/data/HaftingTraj_centimeters_seconds.mat;
 
+write_to_file = 1; % option to write velocity data to new file
+output_file = fopen('reformatted_moves.txt','w');
 ts = 0.02; % timestep
 runtime = size(pos,2);%29416; % run time is number of timesteps in source file.
 x0 = pos(1,1);
@@ -74,6 +76,10 @@ for t=1:runtime
 	old_angle = angle;
 	y1 = y2;
 	x1 = x2;
+
+	if write_to_file
+		fprintf(output_file,'%d %f %f\n',t*(ts*1000),angle,speed);		
+	end
 end
 
 % report statistics
@@ -101,6 +107,8 @@ fprintf("highest speed per second: %.4g\n",max(maxes_1s_wdw));
 fprintf("highest speed per 200ms: %.4g\n",max(maxes_200ms_wdw));
 fprintf("average speed per second: %.4g\n",mean(means_1s_wdw));
 fprintf("average speed per 200ms: %.4g\n",mean(means_200ms_wdw));
+
+fclose(output_file);
 
 function angle = find_angle(x0, y0, x, y)
 	deltaX = x - x0; 
