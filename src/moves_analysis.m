@@ -78,7 +78,7 @@ for t=1:runtime
 	x1 = x2;
 
 	if write_to_file
-		fprintf(output_file,'%d %f %f\n',t*(ts*1000),angle,speed);		
+		fprintf(output_file,'%d,%f,%f\n',t*(ts*1000),angle,speed);		
 	end
 end
 
