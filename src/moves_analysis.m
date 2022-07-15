@@ -1,9 +1,22 @@
 % reference: https://www.mathworks.com/matlabcentral/answers/510528-transform-x-y-coordinate-to-angle
 
-load ../../burak_fiete_gc_model/data/HaftingTraj_centimeters_seconds.mat;
+%load ../../burak_fiete_gc_model/data/HaftingTraj_centimeters_seconds.mat;
+%load ../data/180815_S1_S2_lightVSdarkness_merged_reformatted.mat;
+load ../data/191108_S1_lightVSdarkness_cells11and12_t1_c9.mat
 
-write_to_file = 1; % option to write velocity data to new file
-output_file = fopen('reformatted_moves.txt','w');
+write_to_file = 0; % option to write velocity data to new file
+write_to_file2 = 1; % write seperate angle and speed files
+find_fastest_rot = 1; % report fastest rotations
+report_speed_bins = 0;
+if write_to_file
+	output_file = fopen('reformatted_moves.txt','w');
+end
+if write_to_file2
+	output_file2 = fopen('animal_angles.csv','w');
+end
+if write_to_file2
+	output_file3 = fopen('animal_speeds.csv','w');
+end
 ts = 0.02; % timestep
 runtime = size(pos,2);%29416; % run time is number of timesteps in source file.
 x0 = pos(1,1);
@@ -20,12 +33,14 @@ speeds_1s_bin = zeros(bin_1s,floor(runtime/bin_1s));
 speeds_200ms_bin = zeros(bin_200ms,floor(runtime/bin_200ms));
 all_speeds = zeros(1,runtime); % full set of speeds
 all_rotations = zeros(1,runtime); % full set of speeds
+all_angles = zeros(1,runtime); % full set of angles
 maxes_1s_wdw = [];
 means_1s_wdw = [];
 maxes_200ms_wdw = []; % maxes in rolling window
 means_200ms_wdw = []; % means in rolling window
 sumrot_1s_wdw = [];
 sumrot_200ms_wdw = [];
+speed_bins = zeros(1,150); % set of speed value bins
 
 for t=1:runtime
 	x2 = pos(1,t);
@@ -36,7 +51,9 @@ for t=1:runtime
 	i_col_200ms = 1 + mod(t,bin_200ms);
 
 	% find binned rotations
-	angle = find_angle(x0, y0, x2, y2) + 180;
+	%angle = find_angle(x0, y0, x2, y2) + 180;
+	angle = find_angle(x1, y1, x2, y2) + 90;
+	all_angles(t) = angle;
 	rotation = detect_angle_change(old_angle, angle, angle_ranges, t);
 	if rotation == 1
 		rotations_1s_bin(i_1sec) = rotations_1s_bin(i_1sec) + 1;
@@ -47,6 +64,10 @@ for t=1:runtime
 	speed = find_speed(x1, y1, x2, y2);
 	speeds_1s_bin(i_col_1s,i_1sec) = speed;
 	speeds_200ms_bin(i_col_200ms,i_200ms) = speed;
+    if report_speed_bins
+	    sbi = 1+floor(speed*10); % speed bin index
+	    speed_bins(sbi) = speed_bins(sbi) + 1;
+    end
 
 	% find rolling window rotations
 	all_rotations(t) = rotation;
@@ -80,6 +101,37 @@ for t=1:runtime
 	if write_to_file
 		fprintf(output_file,'%d,%f,%f\n',t*(ts*1000),angle,speed);		
 	end
+	if write_to_file2
+		if t ~= runtime
+			fprintf(output_file2,'%f,',angle);		
+			fprintf(output_file3,'%f,',speed);	
+		else
+			fprintf(output_file2,'%f',angle);		
+			fprintf(output_file3,'%f',speed);
+		end
+	end
+end
+
+if find_fastest_rot
+	fastest_rot = 100000;
+	for i=2:runtime
+		angle = all_angles(i);		
+		for j=2:i
+			old_angle = all_angles(j);
+			rot_speed = 100000;
+			if abs(angle - old_angle) > 90
+				rot_speed = i-j;
+			end
+			if rot_speed < fastest_rot
+				fastest_rot = rot_speed;
+				rot_start = angle;
+				rot_end = old_angle;
+				rot_start_t = j*20;
+				rot_end_t = i*20;
+			end
+		end
+	end
+	fprintf("fastest_90deg+_rotation: %.3gms start_angle:%.4g end_angle:%.4g start_t:%.7gms end_t:%.7gms\n",fastest_rot*20,rot_start,rot_end,rot_start_t,rot_end_t);
 end
 
 % report statistics
@@ -107,12 +159,22 @@ fprintf("highest speed per second: %.4g\n",max(maxes_1s_wdw));
 fprintf("highest speed per 200ms: %.4g\n",max(maxes_200ms_wdw));
 fprintf("average speed per second: %.4g\n",mean(means_1s_wdw));
 fprintf("average speed per 200ms: %.4g\n",mean(means_200ms_wdw));
+%{
+disp("binned speeds:")
+for i = 1:length(speed_bins)
+	fprintf("%f,%d\n",i*0.1,speed_bins(i));
+end
+%}
 
-fclose(output_file);
+if write_to_file
+	fclose(output_file);
+	fclose(output_file2);
+	fclose(output_file3);
+end
 
-function angle = find_angle(x0, y0, x, y)
-	deltaX = x - x0; 
-	deltaY = y - y0; 
+function angle = find_angle(x1, y1, x2, y2)
+	deltaX = x2 - x1; 
+	deltaY = y2 - y1; 
 	angle = atan2d(deltaY,deltaX);
 end
 
