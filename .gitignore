@@ -1,1 +1,10 @@
+data/*
+src/*.cpp
+src/*.csv
 src/*.txt
+src/anim_angles_limited.cpp
+src/anim_speeds_limited.cpp
+src/animal_angles.csv
+src/animal_speeds.csv
+src/reformatted_moves.txt
+src/reformatted_moves_90min_copy.txt

@@ -2,11 +2,12 @@
 
 %load ../../burak_fiete_gc_model/data/HaftingTraj_centimeters_seconds.mat;
 %load ../data/180815_S1_S2_lightVSdarkness_merged_reformatted.mat;
-load ../data/191108_S1_lightVSdarkness_cells11and12_t1_c9.mat
+load ../data/191108_S1_lightVSdarkness_cells11and12_t1_c9_40min.mat;
+%load ../data/191108_S1_lightVSdarkness_cells11and12_t1_c9_scaleddown.mat
 
 write_to_file = 0; % option to write velocity data to new file
 write_to_file2 = 1; % write seperate angle and speed files
-find_fastest_rot = 1; % report fastest rotations
+find_fastest_rot = 0; % report fastest rotations
 report_speed_bins = 0;
 if write_to_file
 	output_file = fopen('reformatted_moves.txt','w');
@@ -40,11 +41,13 @@ maxes_200ms_wdw = []; % maxes in rolling window
 means_200ms_wdw = []; % means in rolling window
 sumrot_1s_wdw = [];
 sumrot_200ms_wdw = [];
-speed_bins = zeros(1,150); % set of speed value bins
+speed_bins = zeros(1,200); % set of speed value bins
 
 for t=1:runtime
-	x2 = pos(1,t);
-	y2 = pos(2,t);
+	if isnan(pos(1,t)) ~= 1 && isnan(pos(2,t)) ~= 1 % avoid NaN entries that cause later processing issues
+		x2 = pos(1,t);
+		y2 = pos(2,t);
+	end
 	i_1sec = 1 + floor(t/bin_1s); % 1 sec bin index
     i_col_1s = 1 + mod(t,bin_1s);
 	i_200ms = 1 + floor(t/bin_200ms);
@@ -52,7 +55,7 @@ for t=1:runtime
 
 	% find binned rotations
 	%angle = find_angle(x0, y0, x2, y2) + 180;
-	angle = find_angle(x1, y1, x2, y2) + 90;
+	angle = find_angle(x1, y1, x2, y2) + 180; % +180 is added to make range [0-360]
 	all_angles(t) = angle;
 	rotation = detect_angle_change(old_angle, angle, angle_ranges, t);
 	if rotation == 1
@@ -109,6 +112,10 @@ for t=1:runtime
 			fprintf(output_file2,'%f',angle);		
 			fprintf(output_file3,'%f',speed);
 		end
+	end
+
+	if mod(t,10000)==0
+		fprintf("t:%d\n",t);
 	end
 end
 
@@ -181,6 +188,9 @@ end
 function speed = find_speed(x1, y1, x2, y2)
 	% speed based on distance moved by euclidan distance
 	speed = sqrt((x2-x1)^2+(y2-y1)^2);
+	f1 = 30/360; % 360x360 x,y to 30x30 x,y
+	f2 = 1000/20; % distance per 20ms converted to distance per 1sec
+	speed = speed*f1; 
 end
 
 function rotation = detect_angle_change(old_angle, new_angle, angle_ranges, t)
