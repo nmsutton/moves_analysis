@@ -3,17 +3,25 @@
 
 anim_angles = readmatrix('animal_angles.csv');
 anim_speeds = readmatrix('animal_speeds.csv');
-speed_limit = 5; % maximum speed allowed
-speed_mult = 65; % multiplier of original speeds
-write_output = 1; % write files or make matrices
+speed_limit = 1;%5; % maximum speed allowed
+speed_mult = 1;%60; % multiplier of original speeds
+max_time = 2400000; % max time of moves to save to files
+timestep = 20;
+max_moves = max_time/timestep;
+mi = 0; % move index
+write_cpp_output = 1; % write files
+write_csv_output = 1;
+output_matrices = 0;
 anim_angles_limit = []; anim_speeds_limit = []; 
-if write_output
-	angles_file = fopen('anim_angles_limited.cpp','w');
-	fprintf(angles_file,"vector<double> anim_angles = {");
+if write_cpp_output
+	angles_cpp_file = fopen('anim_angles_limited.cpp','w');
+	fprintf(angles_cpp_file,"vector<double> anim_angles = {");
+	speeds_cpp_file = fopen('anim_speeds_limited.cpp','w');
+	fprintf(speeds_cpp_file,"vector<double> anim_speeds = {");
 end
-if write_output
-	speeds_file = fopen('anim_speeds_limited.cpp','w');
-	fprintf(speeds_file,"vector<double> anim_speeds = {");
+if write_csv_output
+	angles_csv_file = fopen('anim_angles_limited.csv','w');
+	speeds_csv_file = fopen('anim_speeds_limited.csv','w');
 end
 if speed_mult ~= 1
 	anim_speeds = anim_speeds * speed_mult;
@@ -25,44 +33,65 @@ for i=1:length(anim_speeds)
 		limit_detected = 1;
 		tg = ceil(anim_speeds(i)/speed_limit); % number of times greater than threshold
 		for j=1:tg
+			mi = mi + 1;
 			if j ~= tg
 				new_speed = speed_limit;
 			else
 				new_speed = anim_speeds(i)-(speed_limit*(tg-1));
 			end
-			if write_output
-				fprintf(angles_file,'%.6f',anim_angles(i));	
-				fprintf(speeds_file,'%.6f',new_speed);	
-			else
+			if write_cpp_output && mi < max_moves
+				fprintf(angles_cpp_file,'%.6f',anim_angles(i));	
+				fprintf(speeds_cpp_file,'%.6f',new_speed);	
+			end
+			if output_matrices && mi < max_moves
 				anim_angles_limit = [anim_angles_limit; anim_angles(i)];
 				anim_speeds_limit = [anim_speeds_limit; new_speed];
 			end
-			if i ~= length(anim_speeds) && write_output
-				fprintf(angles_file,',',anim_angles(i));	
-				fprintf(speeds_file,',',anim_speeds(i));
+			if write_csv_output && mi < max_moves
+				fprintf(angles_csv_file,'%.6f\n',anim_angles(i));	
+				fprintf(speeds_csv_file,'%.6f\n',new_speed);
+			end
+			if i == length(anim_speeds) && j == tg
+				% skip
+			elseif write_cpp_output && mi < max_moves
+				fprintf(angles_cpp_file,',',anim_angles(i));	
+				fprintf(speeds_cpp_file,',',anim_speeds(i));
 			end
 		end
 	else
-		if write_output
-			fprintf(angles_file,'%.6f',anim_angles(i));	
-			fprintf(speeds_file,'%.6f',anim_speeds(i));
-		else
+		mi = mi + 1;
+		if write_cpp_output && mi < max_moves
+			fprintf(angles_cpp_file,'%.6f',anim_angles(i));	
+			fprintf(speeds_cpp_file,'%.6f',anim_speeds(i));
+		end
+		if output_matrices && mi < max_moves
 			anim_angles_limit = [anim_angles_limit; anim_angles(i)];
 			anim_speeds_limit = [anim_speeds_limit; anim_speeds(i)];
 		end
+		if write_csv_output && mi < max_moves
+			fprintf(angles_csv_file,'%.6f\n',anim_angles(i));	
+			fprintf(speeds_csv_file,'%.6f\n',anim_speeds(i));
+		end
 	end
-	if i ~= length(anim_speeds) && limit_detected ~= 1 && write_output
-		fprintf(angles_file,',',anim_angles(i));	
-		fprintf(speeds_file,',',anim_speeds(i));
+	if i == length(anim_speeds) || limit_detected == 1
+		% skip
+	elseif write_cpp_output && mi < max_moves
+		fprintf(angles_cpp_file,',',anim_angles(i));	
+		fprintf(speeds_cpp_file,',',anim_speeds(i));
 	end
-	if mod(i,5000)==0
+	if mod(i,floor(length(anim_speeds)/10))==0
 		fprintf("%.1f%% completed\n",i/length(anim_speeds)*100);
 	end
 end
 
-if write_output
-	fprintf(angles_file,"};");
-	fclose(angles_file);
-	fprintf(speeds_file,"};");
-	fclose(speeds_file);
+if write_cpp_output
+	fprintf(angles_cpp_file,"};");
+	fclose(angles_cpp_file);
+	fprintf(speeds_cpp_file,"};");
+	fclose(speeds_cpp_file);
+end
+
+if write_csv_output
+	fclose(angles_csv_file);
+	fclose(speeds_csv_file);
 end

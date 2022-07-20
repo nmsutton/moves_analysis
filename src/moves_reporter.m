@@ -1,22 +1,35 @@
+% This software can reformat animal recordings for use in simulations.
+% Also statistics can be generated about the animal movements in the data.
+% 
 % reference: https://www.mathworks.com/matlabcentral/answers/510528-transform-x-y-coordinate-to-angle
 
-%load ../../burak_fiete_gc_model/data/HaftingTraj_centimeters_seconds.mat;
-%load ../data/180815_S1_S2_lightVSdarkness_merged_reformatted.mat;
-load ../data/191108_S1_lightVSdarkness_cells11and12_t1_c9_40min.mat;
-%load ../data/191108_S1_lightVSdarkness_cells11and12_t1_c9_scaleddown.mat
-
-write_to_file = 0; % option to write velocity data to new file
-write_to_file2 = 1; % write seperate angle and speed files
+% run options
+reformat_spike_data = 1; % choose to reformat data or load previously formatted data
+% reformat file
+file_to_reformat = '/media/nmsutton/StorageDrive7/comp_neuro/holger_data/merged_sessions_ArchTChAT#22_cell1';
+cell_selection = [2,1]; % select cell of interest; [tetrode_number, cell_number]
+y_offset = 660;
+% load prior reformated file
+prior_reformatted_file = '../data/191108_S1_lightVSdarkness_cells11and12_t1_c9_40min.mat';
+if reformat_spike_data
+    pos=load_and_format_spikes(file_to_reformat, cell_selection, y_offset)
+else
+	load(prior_reformatted_file);
+end
+% other run options
+write_txt_file = 0; % option to write velocity data to txt file
+write_csv_file = 1; % write seperate angle and speed csv files
 find_fastest_rot = 0; % report fastest rotations
 report_speed_bins = 0;
-if write_to_file
-	output_file = fopen('reformatted_moves.txt','w');
+
+if write_txt_file
+	moves_txt_file = fopen('reformatted_moves.txt','w');
 end
-if write_to_file2
-	output_file2 = fopen('animal_angles.csv','w');
+if write_csv_file
+	angles_csv_file = fopen('animal_angles.csv','w');
 end
-if write_to_file2
-	output_file3 = fopen('animal_speeds.csv','w');
+if write_csv_file
+	speeds_csv_file = fopen('animal_speeds.csv','w');
 end
 ts = 0.02; % timestep
 runtime = size(pos,2);%29416; % run time is number of timesteps in source file.
@@ -101,16 +114,16 @@ for t=1:runtime
 	y1 = y2;
 	x1 = x2;
 
-	if write_to_file
-		fprintf(output_file,'%d,%f,%f\n',t*(ts*1000),angle,speed);		
+	if write_txt_file
+		fprintf(moves_txt_file,'%d,%f,%f\n',t*(ts*1000),angle,speed);		
 	end
-	if write_to_file2
+	if write_csv_file
 		if t ~= runtime
-			fprintf(output_file2,'%f,',angle);		
-			fprintf(output_file3,'%f,',speed);	
+			fprintf(angles_csv_file,'%f,',angle);		
+			fprintf(speeds_csv_file,'%f,',speed);	
 		else
-			fprintf(output_file2,'%f',angle);		
-			fprintf(output_file3,'%f',speed);
+			fprintf(angles_csv_file,'%f',angle);		
+			fprintf(speeds_csv_file,'%f',speed);
 		end
 	end
 
@@ -173,10 +186,10 @@ for i = 1:length(speed_bins)
 end
 %}
 
-if write_to_file
-	fclose(output_file);
-	fclose(output_file2);
-	fclose(output_file3);
+if write_txt_file
+	fclose(moves_txt_file);
+	fclose(angles_csv_file);
+	fclose(speeds_csv_file);
 end
 
 function angle = find_angle(x1, y1, x2, y2)

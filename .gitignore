@@ -4,6 +4,8 @@ src/*.csv
 src/*.txt
 src/anim_angles_limited.cpp
 src/anim_speeds_limited.cpp
+src/anim_angles_limited.csv
+src/anim_speeds_limited.csv
 src/animal_angles.csv
 src/animal_speeds.csv
 src/reformatted_moves.txt
