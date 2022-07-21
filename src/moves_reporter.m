@@ -4,18 +4,24 @@
 % reference: https://www.mathworks.com/matlabcentral/answers/510528-transform-x-y-coordinate-to-angle
 
 % run options
-reformat_spike_data = 1; % choose to reformat data or load previously formatted data
+reformat_traj_data = 1; % choose to reformat data or load previously formatted data
+
 % reformat file
-file_to_reformat = '/media/nmsutton/StorageDrive7/comp_neuro/holger_data/merged_sessions_ArchTChAT#22_cell1';
-cell_selection = [2,1]; % select cell of interest; [tetrode_number, cell_number]
+%file_to_reformat = '/media/nmsutton/StorageDrive7/comp_neuro/holger_data/merged_sessions_ArchTChAT#22_cell1';
+%cell_selection = [2,1]; % select cell of interest; [tetrode_number, cell_number]
+file_to_reformat = '/media/nmsutton/StorageDrive7/comp_neuro/holger_data/191108_S1_lightVSdarkness_cells11and12';
+cell_selection = [1,9];
 y_offset = 660;
+total_time = 2400000; % time of trajectory to save in ms
+time_step = 20;
 % load prior reformated file
 prior_reformatted_file = '../data/191108_S1_lightVSdarkness_cells11and12_t1_c9_40min.mat';
-if reformat_spike_data
-    pos=load_and_format_spikes(file_to_reformat, cell_selection, y_offset)
+if reformat_traj_data
+    pos=load_and_format_traj(file_to_reformat, cell_selection, y_offset, total_time, time_step);
 else
 	load(prior_reformatted_file);
 end
+
 % other run options
 write_txt_file = 0; % option to write velocity data to txt file
 write_csv_file = 1; % write seperate angle and speed csv files
@@ -127,8 +133,8 @@ for t=1:runtime
 		end
 	end
 
-	if mod(t,10000)==0
-		fprintf("t:%d\n",t);
+	if mod(t,floor(runtime/10))==0
+		fprintf("t:%d %.2f%% completed\n",t,(t/runtime)*100);
 	end
 end
 

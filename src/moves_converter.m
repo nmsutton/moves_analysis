@@ -3,8 +3,8 @@
 
 anim_angles = readmatrix('animal_angles.csv');
 anim_speeds = readmatrix('animal_speeds.csv');
-speed_limit = 1;%5; % maximum speed allowed
-speed_mult = 1;%60; % multiplier of original speeds
+speed_limit = 5; % maximum speed allowed
+speed_mult = 60; % multiplier of original speeds
 max_time = 2400000; % max time of moves to save to files
 timestep = 20;
 max_moves = max_time/timestep;
