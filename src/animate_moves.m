@@ -4,10 +4,10 @@
 plot_animation = 0;
 plot_last_time = 1;
 
-time=2400000;
+time=20000;
 timestep=20;
-moves=time/timestep;
-%moves=time;
+%moves=time/timestep;
+moves=time;
 
 if plot_animation
 	h = animatedline();
@@ -19,9 +19,9 @@ if plot_animation
 end
 
 if plot_last_time
-	%plot(Xs(1:moves),Ys(1:moves))
+	plot(Xs(1:moves),Ys(1:moves))
     %plot(Xs,Ys)
-    plot(Xs2,Ys2)
+    %plot(Xs2,Ys2)
     %plot(Xs((374000/timestep):moves),Ys((374000/timestep):moves))
     %plot(Xs(371000:moves),Ys(371000:moves))
 end

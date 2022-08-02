@@ -1,12 +1,17 @@
 % unwrap animal positions that wrapped around a taurus in the simulation
 % for the purposes of plotting animal movements
 
+use_laptop = 1;
+
 %Xs = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_cs4/scripts/high_res_traj/anim_trajx.csv');
 %Ys = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_cs4/scripts/high_res_traj/anim_trajy.csv');
-%Xs = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_cs4/output/spikes/highres_pos_x.csv');
-%Ys = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_cs4/output/spikes/highres_pos_y.csv');
-Xs = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_ltop/output/spikes/highres_pos_x.csv');
-Ys = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_ltop/output/spikes/highres_pos_y.csv');
+if use_laptop == 0
+    Xs = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_cs4/output/spikes/highres_pos_x.csv');
+    Ys = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_cs4/output/spikes/highres_pos_y.csv');
+else
+    Xs = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_ltop/output/spikes/highres_pos_x.csv');
+    Ys = readmatrix('/home/nmsutton/Dropbox/CompNeuro/gmu/research/sim_project/code/gc_can_ltop/output/spikes/highres_pos_y.csv');
+end
 
 write_csv_files=1;
 Xs2 = Xs; Ys2 = Ys;
@@ -20,8 +25,8 @@ max_x = 30;
 max_y = 30;
 
 if write_csv_files
-	Xs_output_file = fopen('Xs_unwrapped.csv','w');
-	Ys_output_file = fopen('Ys_unwrapped.csv','w');
+	Xs_output_file = fopen('output/Xs_unwrapped.csv','w');
+	Ys_output_file = fopen('output/Ys_unwrapped.csv','w');
 end
 
 for i=1:length(Xs)

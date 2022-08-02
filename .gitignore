@@ -2,10 +2,15 @@ data/*
 src/*.cpp
 src/*.csv
 src/*.txt
+src/output/*
 src/anim_angles_limited.cpp
 src/anim_speeds_limited.cpp
 src/anim_angles_limited.csv
 src/anim_speeds_limited.csv
+src/anim_angles.cpp
+src/anim_speeds.cpp
+src/anim_angles.csv
+src/anim_speeds.csv
 src/animal_angles.csv
 src/animal_speeds.csv
 src/reformatted_moves.txt

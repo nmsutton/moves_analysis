@@ -7,10 +7,10 @@
 reformat_traj_data = 1; % choose to reformat data or load previously formatted data
 
 % reformat file
-file_to_reformat = '/media/nmsutton/StorageDrive7/comp_neuro/holger_data/merged_sessions_ArchTChAT#22_cell1';
-cell_selection = [2,1]; % select cell of interest; [tetrode_number, cell_number]
-%file_to_reformat = '/media/nmsutton/StorageDrive7/comp_neuro/holger_data/191108_S1_lightVSdarkness_cells11and12';
-%cell_selection = [1,9];
+%file_to_reformat = '/media/nmsutton/StorageDrive7/comp_neuro/holger_data/merged_sessions_ArchTChAT#22_cell1';
+%cell_selection = [2,1]; % select cell of interest; [tetrode_number, cell_number]
+file_to_reformat = '/media/nmsutton/StorageDrive7/comp_neuro/holger_data/191108_S1_lightVSdarkness_cells11and12';
+cell_selection = [1,9];
 y_offset = 660;
 total_time = 2400000; % time of trajectory to save in ms
 time_step = 20;
@@ -24,18 +24,18 @@ end
 
 % other run options
 write_txt_file = 0; % option to write velocity data to txt file
-write_csv_file = 0; % write seperate angle and speed csv files
+write_csv_file = 1; % write seperate angle and speed csv files
 find_fastest_rot = 0; % report fastest rotations
-report_speed_bins = 1;
+report_speed_bins = 0;
 
 if write_txt_file
-	moves_txt_file = fopen('output/reformatted_moves.txt','w');
+	moves_txt_file = fopen('reformatted_moves.txt','w');
 end
 if write_csv_file
-	angles_csv_file = fopen('output/animal_angles.csv','w');
+	angles_csv_file = fopen('animal_angles.csv','w');
 end
 if write_csv_file
-	speeds_csv_file = fopen('output/animal_speeds.csv','w');
+	speeds_csv_file = fopen('animal_speeds.csv','w');
 end
 ts = 0.02; % timestep
 runtime = size(pos,2);%29416; % run time is number of timesteps in source file.
@@ -60,7 +60,7 @@ maxes_200ms_wdw = []; % maxes in rolling window
 means_200ms_wdw = []; % means in rolling window
 sumrot_1s_wdw = [];
 sumrot_200ms_wdw = [];
-speed_bins = zeros(1,500); % set of speed value bins
+speed_bins = zeros(1,200); % set of speed value bins
 
 for t=1:runtime
 	if isnan(pos(1,t)) ~= 1 && isnan(pos(2,t)) ~= 1 % avoid NaN entries that cause later processing issues
@@ -87,8 +87,7 @@ for t=1:runtime
 	speeds_1s_bin(i_col_1s,i_1sec) = speed;
 	speeds_200ms_bin(i_col_200ms,i_200ms) = speed;
     if report_speed_bins
-	    %sbi = 1+floor(speed*10); % speed bin index
-        sbi = 1+floor(speed*10*60);
+	    sbi = 1+floor(speed*10); % speed bin index
 	    speed_bins(sbi) = speed_bins(sbi) + 1;
     end
 
@@ -186,12 +185,12 @@ fprintf("highest speed per second: %.4g\n",max(maxes_1s_wdw));
 fprintf("highest speed per 200ms: %.4g\n",max(maxes_200ms_wdw));
 fprintf("average speed per second: %.4g\n",mean(means_1s_wdw));
 fprintf("average speed per 200ms: %.4g\n",mean(means_200ms_wdw));
-if report_speed_bins
-    disp("binned speeds:")
-    for i = 1:length(speed_bins)
-	    fprintf("%f,%d\n",i*0.1,speed_bins(i));
-    end
+%{
+disp("binned speeds:")
+for i = 1:length(speed_bins)
+	fprintf("%f,%d\n",i*0.1,speed_bins(i));
 end
+%}
 
 if write_txt_file
 	fclose(moves_txt_file);
