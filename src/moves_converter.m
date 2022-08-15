@@ -1,11 +1,11 @@
-% this software converts moves above a speed threshold
-% into more moves that are below the threshold.
+% This software converts moves into cpp and csv files.
+% There are speed_limit and speed_mult options.
 
 anim_angles = readmatrix('output/animal_angles.csv');
 anim_speeds = readmatrix('output/animal_speeds.csv');
-use_speed_limit = 1; % turn speed limit on or off
-speed_limit = 5; % maximum speed allowed
-speed_mult = 60;%60; % multiplier of original speeds
+use_speed_limit = 0; % turn speed limit on or off
+speed_limit = 25; % maximum speed allowed
+speed_mult = 54;%60;%60; % multiplier of original speeds
 timestep = 20;
 max_time = length(anim_speeds)*timestep;%2400000; % max time of moves to save to files
 max_moves = max_time/timestep;

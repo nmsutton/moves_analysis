@@ -4,7 +4,7 @@
 %% root.cel_y{1,1}: spike y coordinates
 %% reference: https://github.com/hasselmonians/CMBHOME/wiki/Tutorial-2:-Apply-an-epoch-and-get-theta-signal
 %%
-
+    
 function pos=load_and_format_spikes(file_to_reformat, cell_selection, y_offset)
     addpath /comp_neuro/Software/Github/CMBHOME_github/
     load(file_to_reformat);

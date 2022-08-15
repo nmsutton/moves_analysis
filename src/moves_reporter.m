@@ -14,19 +14,20 @@ cell_selection = [2,1]; % select cell of interest; [tetrode_number, cell_number]
 y_offset = 660;
 total_time = 2400000; % time of trajectory to save in ms
 time_step = 20;
+trans_correct = 1; % apply location transformations to match holger's plots
 % load prior reformated file
 prior_reformatted_file = '../data/191108_S1_lightVSdarkness_cells11and12_t1_c9_40min.mat';
 if reformat_traj_data
-    pos=load_and_format_traj(file_to_reformat, cell_selection, y_offset, total_time, time_step);
+    pos=load_and_format_traj(file_to_reformat, cell_selection, y_offset, total_time, time_step, trans_correct);
 else
 	load(prior_reformatted_file);
 end
 
 % other run options
 write_txt_file = 0; % option to write velocity data to txt file
-write_csv_file = 0; % write seperate angle and speed csv files
+write_csv_file = 1; % write seperate angle and speed csv files
 find_fastest_rot = 0; % report fastest rotations
-report_speed_bins = 1;
+report_speed_bins = 0;
 
 if write_txt_file
 	moves_txt_file = fopen('output/reformatted_moves.txt','w');

@@ -4,7 +4,7 @@
 plot_animation = 0;
 plot_last_time = 1;
 
-time=20000;
+time=100000;
 timestep=20;
 %moves=time/timestep;
 moves=time;
